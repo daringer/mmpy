@@ -12,6 +12,7 @@ def my_endpoint():
     pass
 
 @rest.post("/my/form/action")
+def my_post_endpoint():
     # only POST will end here,
     # DELETE, PUT are also avaialble
     pass
