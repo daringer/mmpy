@@ -121,17 +121,17 @@ class FlaskSimpleRest:
         return endpoints
 
 
-def get_rest_decorator(app):
+def get_rest_decorator(app, *vargs, **kwargs):
     """get the main (rest)-decorator, examples: `mmpy.flask_simple_rest.__doc__`"""
-    return FlaskSimpleRest(app)
+    return FlaskSimpleRest(app, *vargs, **kwargs)
 
-def get_method_decorators(app, methods=None):
+def get_method_decorators(app, methods=None, *vargs, **kwargs):
     """
     Similar to `get_rest_decorator`, but return multiple decorators w/o the rest-obj.
       - default `methods`: get, post, put, delete
     """
     methods = methods or ["get", "post", "put", "delete"]
-    rest = FlaskSimpleRest(app)
+    rest = FlaskSimpleRest(app, *vargs, **kwargs)
     return [getattr(rest, meth) for meth in methods]
 
 
