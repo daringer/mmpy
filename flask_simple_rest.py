@@ -114,9 +114,8 @@ class FlaskSimpleRest:
         automatically generate a unique `app.route` call, i.e., url for any provided
         function `wrapping_func`.
 
-        conditions: `wrapping_func`'s source-file must be below `self.root_path` and
-                    the provided http-method(s) must be annotated using the
-                    designated decorator e.g., `@faas.get`
+        conditions: `wrapping_func`'s source-file must be below `self.root_path` and a
+                    `app` object with a `route` callable must be provided
 
         how it works:
         1) get sourcepath for `wrapping_func` and check it's feasibility & reachability
