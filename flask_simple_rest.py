@@ -33,11 +33,10 @@ import inspect
 from pathlib import Path
 from traceback import extract_stack
 
-#from .fake_attr_cls import FakeAttrChain
 from .url_generator import get_urls_from_func
 
 
-class FlaskSimpleRest:
+class FlaskAutoRoute:
     """
     Shorter, fancier, http-method-driven app-routing, usage:
 
@@ -89,18 +88,8 @@ class FlaskSimpleRest:
             return sub_func
         return func
 
-def get_rest_decorator(app, root_path):
+def get_route_decorator(app, root_path):
     """shortcut function to be used for easy importing"""
-    return FlaskSimpleRest(app, root_path)
-
-FlaskAutoRoute = FlaskSimpleRest
-FlaskLazyRoute = FlaskSimpleRest
-get_route_decorator = get_rest_decorator
-
-# @FIXME: HOW ABOUT: FlaskAutoRoute
-# @TODO: the scope of this thing has expanded massively, so we need:
-#        * module (file), class & shortcut-funcs renaming
-#        * more generic documentation / example
-#        * now it's more like: EasyFlaskRouter, LazyRouter, ...
+    return FlaskAutoRoute(app, root_path)
 
 
