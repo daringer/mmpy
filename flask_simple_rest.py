@@ -42,7 +42,18 @@ class FlaskSimpleRest:
         return func
 
 def get_rest_decorator(app):
+    """get the main (rest)-decorator, examples: `mmpy.flask_simple_rest.__doc__`"""
     return FlaskSimpleRest(app)
+
+def get_method_decorators(app, methods=None):
+    """
+    Similar to `get_rest_decorator`, but return multiple decorators w/o the rest-obj.
+      - default `methods`: get, post, put, delete
+    """
+    methods = methods or ["get", "post", "put", "delete"]
+    rest = FlaskSimpleRest(app)
+    return [getattr(rest, meth) for meth in methods]
+
 
 # woho, brain-shrinking 8-liner, pythonic-fanciness including brain-damage
 # wrapping decorator aliases its arguments based on the decorating method/alias name
