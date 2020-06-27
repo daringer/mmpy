@@ -63,14 +63,6 @@ class FlaskSimpleRest:
         stack = extract_stack()
         my_call, others = stack[-1], stack[:-1]
         assert len(others) > 0, "????"
-        rel_path = None
-        try:
-            rel_path = self.root_path.relative_to(external_caller.filename)
-        except ValueError as e:
-            print("HANDLE FAILING REL-PATH DETERMINATION")
-            raise e
-
-        endpoints = []
 
         # traverse stack up until not-me file is found, its func is the caller
         external_caller = None
@@ -79,6 +71,15 @@ class FlaskSimpleRest:
             if caller.filename != my_call.filename:
                 external_caller = caller
                 break
+
+        rel_path = None
+        try:
+            rel_path = self.root_path.relative_to(external_caller.filename)
+        except ValueError as e:
+            print("HANDLE FAILING REL-PATH DETERMINATION")
+            raise e
+
+        endpoints = []
 
         # determine func-parameters to url-arguments mapping:
         # v-args: add as 'path' in endpoint-url and ensure
