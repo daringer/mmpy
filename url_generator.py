@@ -12,21 +12,26 @@ type_map = {
 
 class NotBelowRootPathError(Exception): pass
 
-# @TODO @FIXME: find another place (more generic functionality actually) for this
-#               piece of 'art': function is class independent, only args needed
-def get_urls_from_func(func, root_path, force_func_name=None):
+def get_urls_from_func(func, root_path=None, func_name=None, fail_base=None):
     """
-    automatically generate a unique URL for any provided callable `func`.
+    # automatically generate a unique URL for any provided callable `func`.
 
-    requires: `func`'s src-file must be below `root_path`
+    ## args:
+      `func`      => the target callable, for which URLs will be generated
+      `root_path` => a filesystem path, on auto-generation all targets shall
+                     be below this dir (see `fail_base`)
+      `func_name` => take the provided name instead of the one derived
+      `fail_base` => any `func` with a srcfile not below `root_path`,
+                     will get `fail_base` as replacement for the
+                     token, which would normally be the relative-dir
 
-    how it works:
-    1) get sourcepath for `func` and check it's feasibility & reachability
+    ## how it works:
+    1) get src-path for `func` and check it's feasibility & reachability
        w.r.t. `root_path` => `base_path` (relative (to root) path)
     2) parse func's args into 3 groups as documented inside the `middle docstr`.
        arg -annotations (typing), -ordering, -defaults are fully taken into
        consideration for *url* generation
-    3) assemble `url` by rendering the param classes (`v-`, `kw-`, `h-`) like this:
+    3) assemble `urls` by rendering the param classes (`v-`, `kw-`, `h-`) like this:
        * `[v-args]` are *fully ordered* & *typed*, thus form the `base_url` i.e.:
          `/<src-rel-path>/<function-name>/<arg1>/../<argN>/`
          `arg1 ... argN` are mandatory -> must be included (no defaults)
@@ -35,19 +40,21 @@ def get_urls_from_func(func, root_path, force_func_name=None):
     """
 
     # get function's source filename (+path) and strip ".py" suffix ...
-    call_from_path = inspect.getfile(func)
-
-    dot_pos = call_from_path.rfind(".")
-    base_path = Path(call_from_path[:dot_pos])
+    call_src_fn = inspect.getfile(func)
+    base_path = Path(call_src_fn[:call_src_fn.rfind(".")])
+    rel_path = None
     # ... and determine + ensure rel-path w.r.t. 'root_path'
     try:
         rel_path = base_path.relative_to(root_path)
-    except ValueError as e:
-        print(f"[E] provided 'callable': '{force_func_name or func.__name__}' ")
-        print(f"[E] src-file: '{call_from_path}'")
-        print(f"[E] ==> IS NOT BELOW '{root_path}'")
-        print(f"[E] aborting url_generation for this 'func'")
-        raise NotBelowRootPathError((call_from_path, root_path, func))
+    except (ValueError, TypeError) as e:
+        if fail_base is None and root_path is not None:
+            raise NotBelowRootPathError((call_src_fn, root_path, func))
+
+        if fail_base:
+            # be picky about trailing slashes ...
+            rel_path = fail_base
+            while "/" in rel_path:
+                rel_path = rel_path[1:] if rel_path.startswith("/") else rel_path
 
     # func's endpoints collection
     endpoints = []
@@ -73,7 +80,7 @@ def get_urls_from_func(func, root_path, force_func_name=None):
         box.append(f"<{_type}{name}>")
 
     # assemble base_url ("/" + rel-path + func_name)
-    func_name = force_func_name or func.__name__
+    func_name = func_name or func.__name__
     base_url = os.path.sep / rel_path / func_name
 
     # join params (p1, p2, ..., pN) to '{p1}/{p2}/.../{pN}' and ...

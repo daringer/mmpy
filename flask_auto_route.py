@@ -91,8 +91,8 @@ class FlaskAutoRoute:
             return sub_func
         return func
 
-def get_route_decorator(app, root_path):
+def get_route_decorator(app, endpoint_root=None):
     """shortcut function to be used for easy importing"""
-    return FlaskAutoRoute(app, root_path)
+    return FlaskAutoRoute(app, endpoint_root)
 
 

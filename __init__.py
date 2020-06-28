@@ -1,6 +1,6 @@
 
-from mmpy.flask_simple_rest import FlaskAutoRoute
-from mmpy.flask_simple_rest import get_route_decorator
+from mmpy.flask_auto_route import FlaskAutoRoute
+from mmpy.flask_auto_route import get_route_decorator
 
 from mmpy.pwd_cls import Password
 
