@@ -81,6 +81,9 @@ class FlaskAutoRoute:
                 # 'f' is what normally 'app.route' would have been called with for decoration
                 _gen = (p.as_posix() for p in get_urls_from_func(f, self.auto_root_path))
                 for url in _gen:
+                    # apply some url-consistency stuff, just to be sure
+                    url = url.replace("_", "-").replace(" ", "").lower()
+
                     self.endpoints.append((url, kw))
                     # *circle-wrap* (decorate) `f` for `len(endpoints)` times...
                     f = self.app.route(url, **kw)(f)

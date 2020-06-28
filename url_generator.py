@@ -23,17 +23,15 @@ def get_urls_from_func(func, root_path, force_func_name=None):
     how it works:
     1) get sourcepath for `func` and check it's feasibility & reachability
        w.r.t. `root_path` => `base_path` (relative (to root) path)
-    2) parse function's args into 3 groups as documented inside the `middle docstr`.
+    2) parse func's args into 3 groups as documented inside the `middle docstr`.
        arg -annotations (typing), -ordering, -defaults are fully taken into
        consideration for *url* generation
-    3) all parts are now assembled together to a proper `url`. The different func
-       param classes (`v-`, `kw-`, `h-`) are handled like this:
-       * `[v-args]` are rendered *fully ordered* & *typed* and form together the
-         `base_url` like this: `/<src-rel-path>/<function-name>/<arg1>/../<argN>/`
-         `arg1 ... argN` are mandatory, thus included (no default provided)
-       * `[kw-args]` are kept in order to append one after another to the `base_url`
+    3) assemble `url` by rendering the param classes (`v-`, `kw-`, `h-`) like this:
+       * `[v-args]` are *fully ordered* & *typed*, thus form the `base_url` i.e.:
+         `/<src-rel-path>/<function-name>/<arg1>/../<argN>/`
+         `arg1 ... argN` are mandatory -> must be included (no defaults)
+       * `[kw-args]` are in order, appended (cumulative) one after another to the `base_url`
          leading to `n`-copies of the URL, with `n == len(kw-args)`
-    4) return endpoints/urls
     """
 
     # get function's source filename (+path) and strip ".py" suffix ...
@@ -56,12 +54,9 @@ def get_urls_from_func(func, root_path, force_func_name=None):
 
     """
     derive func-parameters to url-arguments mapping:
-    [v-args]   add as 'path' in endpoint-url and ensure
-               name + type-annotations are used
-    [kw-args]  fork to multiple endpoints, regular one: w/o any default args.
-               next: one default arg, next: two ....
-    [h-kwargs] (marked as hidden, if startswith("_")] will not be used for
-               endpoint-url generation, thus skipped, but still kept for later
+    [v-args]   add as 'path' in endpoint-url and ensure name + type-annotations are used
+    [kw-args]  fork an endpoint for each one with an default arg: one default arg, next: two ....
+    [h-kwargs] (marked as hidden, if startswith("_")] will simple be skipped but saved
     """
     p_url, p_url_kw, p_hidden = [], [], []
     sig = inspect.signature(func)
